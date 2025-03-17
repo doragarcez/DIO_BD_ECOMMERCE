@@ -1,0 +1,107 @@
+CREATE DATABASE ecommerce;
+USE ecommerce;
+
+-- Tabela Cliente
+CREATE TABLE cliente(
+    idCliente INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    idIdentificacao INT UNIQUE,
+    idPagamento INT,
+    endereco VARCHAR(200)
+);
+
+-- Tabela Pagamento
+CREATE TABLE pagamento(
+    idPagamento INT AUTO_INCREMENT PRIMARY KEY,
+    idCliente INT NOT NULL,
+    metodoPagamento VARCHAR(50) NOT NULL,
+    cdPagamento INT UNIQUE,
+    FOREIGN KEY (idCliente) REFERENCES cliente(idCliente) ON DELETE CASCADE
+);
+
+-- Tabela Identificação
+CREATE TABLE identificacao(
+    idIdentificacao INT AUTO_INCREMENT PRIMARY KEY,
+    idCliente INT UNIQUE,
+    cdIdentificacao INT UNIQUE,
+    FOREIGN KEY (idCliente) REFERENCES cliente(idCliente) ON DELETE CASCADE
+);
+
+-- Tabela Pedido
+CREATE TABLE pedido(
+    idPedido INT AUTO_INCREMENT PRIMARY KEY,
+    idCliente INT NOT NULL,
+    status VARCHAR(50),
+    cdRastreio VARCHAR(50) UNIQUE,
+    descricao TEXT,
+    frete DECIMAL(10,2),
+    FOREIGN KEY (idCliente) REFERENCES cliente(idCliente) ON DELETE CASCADE
+);
+
+-- Tabela Produto
+CREATE TABLE produto(
+    idProduto INT AUTO_INCREMENT PRIMARY KEY,
+    categoria VARCHAR(100),
+    descricao TEXT,
+    valor DECIMAL(10,2) NOT NULL
+);
+
+-- Relacionamento Produto <-> Pedido
+CREATE TABLE rel_produto_pedido(
+    idProduto INT NOT NULL,
+    idPedido INT NOT NULL,
+    quantidade INT,
+    PRIMARY KEY (idProduto, idPedido),
+    FOREIGN KEY (idProduto) REFERENCES produto(idProduto) ON DELETE CASCADE,
+    FOREIGN KEY (idPedido) REFERENCES pedido(idPedido) ON DELETE CASCADE
+);
+
+-- Tabela Fornecedor
+CREATE TABLE fornecedor(
+    idFornecedor INT AUTO_INCREMENT PRIMARY KEY,
+    razaoSocial VARCHAR(150) NOT NULL,
+    CNPJ VARCHAR(18) UNIQUE NOT NULL
+);
+
+-- Relacionamento Produto <-> Fornecedor
+CREATE TABLE rel_produto_fornecedor(
+    idFornecedor INT NOT NULL,
+    idProduto INT NOT NULL,
+    PRIMARY KEY (idFornecedor, idProduto),
+    FOREIGN KEY (idFornecedor) REFERENCES fornecedor(idFornecedor) ON DELETE CASCADE,
+    FOREIGN KEY (idProduto) REFERENCES produto(idProduto) ON DELETE CASCADE
+);
+
+-- Tabela Estoque
+CREATE TABLE estoque(
+    idEstoque INT AUTO_INCREMENT PRIMARY KEY,
+    endereco VARCHAR(200) NOT NULL
+);
+
+-- Relacionamento Estoque <-> Produto
+CREATE TABLE rel_estoque_produto(
+    idEstoque INT NOT NULL,
+    idProduto INT NOT NULL,
+    quantidade INT,
+    PRIMARY KEY (idEstoque, idProduto),
+    FOREIGN KEY (idEstoque) REFERENCES estoque(idEstoque) ON DELETE CASCADE,
+    FOREIGN KEY (idProduto) REFERENCES produto(idProduto) ON DELETE CASCADE
+);
+
+-- Tabela Vendedor Terceirizado
+CREATE TABLE vendedor_terceirizado(
+    idTerceiro INT AUTO_INCREMENT PRIMARY KEY,
+    razaoSocial VARCHAR(150) NOT NULL,
+    CNPJ VARCHAR(18) UNIQUE NOT NULL,
+    status VARCHAR(50)
+);
+
+-- Relacionamento Produto <-> Vendedor Terceirizado
+CREATE TABLE rel_produto_terceiro(
+    idTerceiro INT NOT NULL,
+    idProduto INT NOT NULL,
+    quantidade INT,
+    PRIMARY KEY (idTerceiro, idProduto),
+    FOREIGN KEY (idTerceiro) REFERENCES vendedor_terceirizado(idTerceiro) ON DELETE CASCADE,
+    FOREIGN KEY (idProduto) REFERENCES produto(idProduto) ON DELETE CASCADE
+);
